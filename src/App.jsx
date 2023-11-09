@@ -1,5 +1,5 @@
-import Task from "./Task";
-import TaskInput from "./TaskInput";
+import Task from "./Components/Task";
+import TaskInput from "./Components/TaskInput";
 import "./App.css";
 import { useState } from "react";
 
@@ -8,12 +8,12 @@ function App() {
     {
       id: "1",
       title: "Title 1",
-      isDone: false,
+      isFinished: false,
     },
     {
       id: "2",
       title: "Title 2",
-      isDone: false,
+      isFinished: false,
     },
   ]);
 
@@ -23,10 +23,27 @@ function App() {
       {
         id: crypto.randomUUID(),
         title: title,
-        isDone: false,
+        isFinished: false,
       },
     ]);
   };
+  const setTaskFinished = (id, value) => {
+    console.log(value);
+    setTasks(
+      tasks.map((task) =>
+        task.id == id ? { ...task, isFinished: value } : task
+      )
+    );
+  };
+
+  const [finishedTasksVisible, setFinishedTasksVisible] = useState(false);
+  const visibleTasks = tasks.filter((task) => {
+    if (!finishedTasksVisible && task.isFinished) {
+      return false;
+    }
+
+    return true;
+  });
 
   const removeTask = (id) => {
     console.log("removing task" + id);
@@ -35,13 +52,17 @@ function App() {
 
   return (
     <main>
-      {tasks.map((task) => (
+      <button onClick={() => setFinishedTasksVisible(!finishedTasksVisible)}>
+        {finishedTasksVisible ? "Hide Finished Tasks" : "Show Finished Tasks"}
+      </button>
+      {visibleTasks.map((task) => (
         <Task
           key={task.id}
           id={task.id}
           title={task.title}
-          isDone={task.isDone}
-          onRemove={removeTask}
+          isFinished={task.isFinished}
+          setFinished={(value) => setTaskFinished(task.id, value)}
+          onRemove={() => removeTask(task.id)}
         />
       ))}
       <TaskInput onInput={addTask} />
