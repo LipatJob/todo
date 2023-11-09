@@ -9,11 +9,13 @@ function App() {
       id: "1",
       title: "Title 1",
       isFinished: false,
+      subtasks: [],
     },
     {
       id: "2",
       title: "Title 2",
       isFinished: false,
+      subtasks: [],
     },
   ]);
 
@@ -24,6 +26,7 @@ function App() {
         id: crypto.randomUUID(),
         title: title,
         isFinished: false,
+        subtasks: [],
       },
     ]);
   };
@@ -46,8 +49,55 @@ function App() {
   });
 
   const removeTask = (id) => {
-    console.log("removing task" + id);
-    setTasks(tasks.filter((e) => e.id != id));
+    setTasks(tasks.filter((subtask) => subtask.id != id));
+  };
+
+  const addSubtask = (id) => {
+    const newTasks = tasks.map((task) =>
+      task.id == id
+        ? {
+            ...task,
+            subtasks: [
+              ...task.subtasks,
+              { id: crypto.randomUUID(), title: "New subtask" },
+            ],
+          }
+        : task
+    );
+    console.log(newTasks);
+    setTasks(newTasks);
+  };
+
+  const deleteSubtask = (id, subtaskId) => {
+    const newTasks = tasks.map((task) =>
+      task.id == id
+        ? {
+            ...task,
+            subtasks: task.subtasks.filter(
+              (subtask) => subtask.id != subtaskId
+            ),
+          }
+        : task
+    );
+    console.log(newTasks);
+    setTasks(newTasks);
+  };
+
+  const editSubtaskTitle = (id, subtaskId, newTitle) => {
+    const newTasks = tasks.map((task) =>
+      task.id == id
+        ? {
+            ...task,
+            subtasks: task.subtasks.map((subtask) =>
+              subtask.id === subtaskId
+                ? { ...subtask, title: newTitle }
+                : subtask
+            ),
+          }
+        : task
+    );
+    console.log(newTasks);
+    setTasks(newTasks);
   };
 
   return (
@@ -60,9 +110,15 @@ function App() {
           key={task.id}
           id={task.id}
           title={task.title}
+          subtasks={task.subtasks}
           isFinished={task.isFinished}
           setFinished={(value) => setTaskFinished(task.id, value)}
+          onAddSubtask={() => addSubtask(task.id)}
           onRemove={() => removeTask(task.id)}
+          onRemoveSubtask={(subtaskId) => deleteSubtask(task.id, subtaskId)}
+          onEditSubtaskTitle={(subtaskId, title) =>
+            editSubtaskTitle(task.id, subtaskId, title)
+          }
         />
       ))}
       <TaskInput onInput={addTask} />
