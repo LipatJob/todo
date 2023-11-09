@@ -55,25 +55,24 @@ function editRootTaskTitle(tasks, id, title) {
 }
 
 function editSubTaskTitle(tasks, id, parentId, title) {
-  return mapSubTask(tasks, id, parentId, (subtask) =>
+  return mapSubTask(tasks, parentId, (subtask) =>
     subtask.id == id ? { ...subtask, title } : subtask
   );
 }
 
 function toggleRootTask(tasks, id, value) {
-  console.log(value);
   return tasks.map((task) =>
     task.id === id ? { ...task, isFinished: value } : task
   );
 }
 
 function toggleSubTask(tasks, id, value, parentId) {
-  return mapSubTask(tasks, id, parentId, (subtask) =>
+  return mapSubTask(tasks, parentId, (subtask) =>
     subtask.id == id ? { ...subtask, isFinished: value } : subtask
   );
 }
 
-function filterSubTask(tasks, id, parentId, filter) {
+function filterSubTask(tasks, parentId, filter) {
   return tasks.map((task) =>
     task.id === parentId
       ? {
@@ -84,7 +83,7 @@ function filterSubTask(tasks, id, parentId, filter) {
   );
 }
 
-function mapSubTask(tasks, id, parentId, mapper) {
+function mapSubTask(tasks, parentId, mapper) {
   return tasks.map((task) =>
     task.id === parentId
       ? {
@@ -94,11 +93,6 @@ function mapSubTask(tasks, id, parentId, mapper) {
       : task
   );
 }
-
-// how to copy tree
-// traversal
-// mapTree
-// filterTree
 
 export const TaskActions = {
   Add: "Add",
