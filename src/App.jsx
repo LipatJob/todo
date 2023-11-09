@@ -1,127 +1,77 @@
-import Task from "./Components/Task";
-import TaskInput from "./Components/TaskInput";
+import TaskInput from "./components/TaskInput";
 import "./App.css";
-import { useState } from "react";
+import Task from "./Components/Task";
+import TaskReducer, { TaskActions } from "./reducers/TaskReducer";
+import { useReducer, useState } from "react";
 
 function App() {
-  const [tasks, setTasks] = useState([
-    {
-      id: "1",
-      title: "Title 1",
-      isFinished: false,
-      subtasks: [],
-    },
-    {
-      id: "2",
-      title: "Title 2",
-      isFinished: false,
-      subtasks: [],
-    },
-  ]);
-
-  const addTask = (title) => {
-    setTasks([
-      ...tasks,
-      {
-        id: crypto.randomUUID(),
-        title: title,
-        isFinished: false,
-        subtasks: [],
-      },
-    ]);
-  };
-  const setTaskFinished = (id, value) => {
-    console.log(value);
-    setTasks(
-      tasks.map((task) =>
-        task.id == id ? { ...task, isFinished: value } : task
-      )
-    );
-  };
-
+  const [tasks, dispatch] = useReducer(TaskReducer, []);
   const [finishedTasksVisible, setFinishedTasksVisible] = useState(false);
-  const visibleTasks = tasks.filter((task) => {
-    if (!finishedTasksVisible && task.isFinished) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const removeTask = (id) => {
-    setTasks(tasks.filter((subtask) => subtask.id != id));
+  const handleAdd = (title, parent = null) => {
+    dispatch({ type: TaskActions.Add, title, parent });
   };
-
-  const addSubtask = (id) => {
-    const newTasks = tasks.map((task) =>
-      task.id == id
-        ? {
-            ...task,
-            subtasks: [
-              ...task.subtasks,
-              { id: crypto.randomUUID(), title: "New subtask" },
-            ],
-          }
-        : task
-    );
-    console.log(newTasks);
-    setTasks(newTasks);
+  const handleEditTitle = (id, newTitle, parent = null) => {
+    dispatch({ type: TaskActions.EditTitle, id, title: newTitle, parent });
   };
-
-  const deleteSubtask = (id, subtaskId) => {
-    const newTasks = tasks.map((task) =>
-      task.id == id
-        ? {
-            ...task,
-            subtasks: task.subtasks.filter(
-              (subtask) => subtask.id != subtaskId
-            ),
-          }
-        : task
-    );
-    console.log(newTasks);
-    setTasks(newTasks);
+  const handleDelete = (id, parent = null) => {
+    dispatch({ type: TaskActions.Delete, id, parent });
   };
-
-  const editSubtaskTitle = (id, subtaskId, newTitle) => {
-    const newTasks = tasks.map((task) =>
-      task.id == id
-        ? {
-            ...task,
-            subtasks: task.subtasks.map((subtask) =>
-              subtask.id === subtaskId
-                ? { ...subtask, title: newTitle }
-                : subtask
-            ),
-          }
-        : task
-    );
-    console.log(newTasks);
-    setTasks(newTasks);
+  const handleToggle = (id, value, parent = null) => {
+    dispatch({ type: TaskActions.Toggle, id, value, parent });
   };
 
   return (
-    <main>
-      <button onClick={() => setFinishedTasksVisible(!finishedTasksVisible)}>
-        {finishedTasksVisible ? "Hide Finished Tasks" : "Show Finished Tasks"}
-      </button>
-      {visibleTasks.map((task) => (
-        <Task
-          key={task.id}
-          id={task.id}
-          title={task.title}
-          subtasks={task.subtasks}
-          isFinished={task.isFinished}
-          setFinished={(value) => setTaskFinished(task.id, value)}
-          onAddSubtask={() => addSubtask(task.id)}
-          onRemove={() => removeTask(task.id)}
-          onRemoveSubtask={(subtaskId) => deleteSubtask(task.id, subtaskId)}
-          onEditSubtaskTitle={(subtaskId, title) =>
-            editSubtaskTitle(task.id, subtaskId, title)
-          }
-        />
-      ))}
-      <TaskInput onInput={addTask} />
+    <main className="mx-auto max-w-xl my-3">
+      <div className="flex flex-row items-center">
+        <h1 className="text-4xl">Tasks</h1>
+        <button
+          className="btn btn-primary ml-auto"
+          onClick={() => setFinishedTasksVisible(!finishedTasksVisible)}
+        >
+          {finishedTasksVisible ? "Hide Finished Tasks" : "Show Finished Tasks"}
+        </button>
+      </div>
+
+      <div className="flex flex-col gap-2 my-4">
+        {tasks
+          .filter((task) => (finishedTasksVisible ? task : !task.isFinished))
+          .map((task) => (
+            <div key={task.id} className="">
+              <Task
+                title={task.title}
+                isFinished={task.isFinished}
+                isSubtask={task.isSubtask}
+                onEditTitle={(newTitle) => handleEditTitle(task.id, newTitle)}
+                onRemove={() => handleDelete(task.id)}
+                onAddSubtask={() => handleAdd("New subtask", task.id)}
+                onToggle={(value) => handleToggle(task.id, value)}
+              />
+              <div className="flex flex-col ml-16 gap-1 mt-2">
+                {task.subtasks
+                  .filter((subtask) =>
+                    finishedTasksVisible ? subtask : !subtask.isFinished
+                  )
+                  .map((subtask) => (
+                    <Task
+                      key={subtask.id}
+                      title={subtask.title}
+                      isFinished={subtask.isFinished}
+                      isSubtask={subtask.isSubtask}
+                      onEditTitle={(newTitle) =>
+                        handleEditTitle(subtask.id, newTitle, task.id)
+                      }
+                      onToggle={(value) =>
+                        handleToggle(subtask.id, value, task.id)
+                      }
+                      onRemove={() => handleDelete(subtask.id, task.id)}
+                      setFinished={() => handleToggle(subtask.id)}
+                    />
+                  ))}
+              </div>
+            </div>
+          ))}
+      </div>
+      <TaskInput onInput={handleAdd} />
     </main>
   );
 }

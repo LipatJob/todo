@@ -1,18 +1,26 @@
 import { useState } from "react";
+import { IoMdAdd } from "react-icons/io";
 
 export default function TaskInput({ onInput }) {
   const [text, setText] = useState("");
   return (
-    <div>
-      <input type="text" onChange={(e) => setText(e.target.value)}></input>
+    <div className="flex flex-row gap-2">
+      <input
+        className="input input-bordered flex-grow"
+        type="text"
+        onChange={(e) => setText(e.target.value)}
+        value={text}
+      />
       <button
+        className="btn btn-primary"
         type="button"
         onClick={(e) => {
           e.preventDefault();
           onInput(text);
+          setText("");
         }}
       >
-        Create Task
+        <IoMdAdd color="white" />
       </button>
     </div>
   );
