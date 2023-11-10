@@ -8,6 +8,7 @@ export default function TaskInput({ onInput }) {
       <input
         className="input input-bordered flex-grow"
         type="text"
+        placeholder="Enter task title"
         onChange={(e) => setText(e.target.value)}
         value={text}
       />

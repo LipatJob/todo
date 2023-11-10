@@ -1,12 +1,17 @@
 import TaskInput from "./components/TaskInput";
 import "./App.css";
 import Task from "./Components/Task";
-import TaskReducer, { TaskActions } from "./reducers/TaskReducer";
+import FlatTaskReducer, {
+  TaskActions,
+  getTaskHierarchy,
+} from "./reducers/FlatTaskReducer";
 import { useReducer, useState } from "react";
 
 function App() {
-  const [tasks, dispatch] = useReducer(TaskReducer, []);
+  const [tasks, dispatch] = useReducer(FlatTaskReducer, []);
   const [finishedTasksVisible, setFinishedTasksVisible] = useState(false);
+  const taskHierarchy = getTaskHierarchy(tasks);
+
   const handleAdd = (title, parent = null) => {
     dispatch({ type: TaskActions.Add, title, parent });
   };
@@ -23,7 +28,7 @@ function App() {
   return (
     <main className="mx-auto max-w-xl my-3">
       <div className="flex flex-row items-center">
-        <h1 className="text-4xl">Tasks</h1>
+        <h1 className="text-4xl font-semibold">Tasks</h1>
         <button
           className="btn btn-primary ml-auto"
           onClick={() => setFinishedTasksVisible(!finishedTasksVisible)}
@@ -33,17 +38,16 @@ function App() {
       </div>
 
       <div className="flex flex-col gap-2 my-4">
-        {tasks
+        {taskHierarchy
           .filter((task) => (finishedTasksVisible ? task : !task.isFinished))
           .map((task) => (
             <div key={task.id} className="">
               <Task
                 title={task.title}
                 isFinished={task.isFinished}
-                isSubtask={task.isSubtask}
                 onEditTitle={(newTitle) => handleEditTitle(task.id, newTitle)}
                 onRemove={() => handleDelete(task.id)}
-                onAddSubtask={() => handleAdd("New subtask", task.id)}
+                onAddSubtask={() => handleAdd("", task.id)}
                 onToggle={(value) => handleToggle(task.id, value)}
               />
               <div className="flex flex-col ml-16 gap-1 mt-2">
@@ -56,7 +60,7 @@ function App() {
                       key={subtask.id}
                       title={subtask.title}
                       isFinished={subtask.isFinished}
-                      isSubtask={subtask.isSubtask}
+                      isSubtask
                       onEditTitle={(newTitle) =>
                         handleEditTitle(subtask.id, newTitle, task.id)
                       }

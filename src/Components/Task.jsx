@@ -25,6 +25,7 @@ export default function Task({
       <input
         className={`input flex-grow ${isFinished ? "line-through" : ""}`}
         type="text"
+        placeholder="Enter task title"
         value={title}
         onChange={(e) => onEditTitle(e.target.value)}
       />
