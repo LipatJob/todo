@@ -30,7 +30,9 @@ function App() {
       <div className="flex flex-row items-center">
         <h1 className="text-4xl font-semibold">Tasks</h1>
         <button
-          className="btn btn-primary ml-auto"
+          className={`btn btn-primary ml-auto ${
+            finishedTasksVisible ? "btn-outline" : ""
+          }`}
           onClick={() => setFinishedTasksVisible(!finishedTasksVisible)}
         >
           {finishedTasksVisible ? "Hide Finished Tasks" : "Show Finished Tasks"}
@@ -39,9 +41,9 @@ function App() {
 
       <div className="flex flex-col gap-2 my-4">
         {taskHierarchy
-          .filter((task) => (finishedTasksVisible ? task : !task.isFinished))
+          .filter((task) => (!finishedTasksVisible ? !task.isFinished : true))
           .map((task) => (
-            <div key={task.id} className="">
+            <div key={task.id}>
               <Task
                 title={task.title}
                 isFinished={task.isFinished}
@@ -53,7 +55,7 @@ function App() {
               <div className="flex flex-col ml-16 gap-1 mt-2">
                 {task.subtasks
                   .filter((subtask) =>
-                    finishedTasksVisible ? subtask : !subtask.isFinished
+                    !finishedTasksVisible ? !subtask.isFinished : true
                   )
                   .map((subtask) => (
                     <Task
