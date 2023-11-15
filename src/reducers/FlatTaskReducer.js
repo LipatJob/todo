@@ -9,18 +9,22 @@ export default (tasks = [], action) => {
         parent: action.parent,
       };
       return [...tasks, newTask];
+
     case TaskActions.Delete:
       return tasks.filter(
         (task) => !(task.id == action.id || task.parent == action.id)
       );
+
     case TaskActions.EditTitle:
       return tasks.map((task) =>
         task.id == action.id ? { ...task, title: action.title } : task
       );
+
     case TaskActions.Toggle:
       return tasks.map((task) =>
         task.id == action.id ? { ...task, isFinished: action.value } : task
       );
+
     default:
       throw new Error(`Unknown Action: ${action.type}`);
   }
